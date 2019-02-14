@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Todo } from 'src/models/todo.model';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -6,8 +8,23 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  public todos: any[] = [];
-  constructor() {
+
+  public title: String = 'Lista de Tarefas';
+  public todos: Todo[] = [];
+  public form: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      title: ['', Validators.compose([
+        Validators.minLength(3),
+        Validators.maxLength(60),
+        Validators.required
+      ])]
+    });
+    this.loadTodo();
+  }
+
+  loadTodo() {
     this.todos.push({
       title: 'Passear com o cachorro',
       done: false
@@ -17,5 +34,25 @@ export class AppComponent {
       done: false
     });
   }
-  title = 'Lista de Tarefas';
+
+  addTodo() {
+    // this.form.value { title : ''}
+    // this.form.controls['title'] = '' value only
+    if (this.form.valid) {
+      const title = this.form.controls['title'].value;
+      this.todos.push(new Todo(title, false));
+      this.form.reset();
+    }
+  }
+
+  removeTodo(todo: Todo) {
+    const index = this.todos.indexOf(todo);
+    this.todos.splice(index, 1);
+  }
+
+  markAsDone(todo: Todo) {
+    console.log(todo);
+    todo.done = true;
+  }
+
 }
